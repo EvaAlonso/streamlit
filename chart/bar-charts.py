@@ -59,7 +59,7 @@ chart = alt.Chart(df_modelos_melted).mark_bar().encode(
     width=600,
     height=400
 )
-"""Personalización avanzada de la gráfica de barras apiladas
+#Personalización avanzada de la gráfica de barras apiladas
 chart = alt.Chart(df_modelos_melted).mark_bar().encode(
     x=alt.X('Semana:O', title='Semana', axis=alt.Axis(labelFontSize=14, titleFontSize=16, labelAngle=0)),  # Personaliza el eje X
     y=alt.Y('Producción:Q', title='Producción de Coches', axis=alt.Axis(labelFontSize=14, titleFontSize=16)),  # Personaliza el eje Y
@@ -83,6 +83,93 @@ chart = alt.Chart(df_modelos_melted).mark_bar().encode(
     strokeWidth=0  # Eliminar el borde de la vista
 ).interactive()  # Activar la interactividad (por ejemplo, zoom)
 
-"""
+
 # Mostrar la gráfica
 st.altair_chart(chart)
+
+"""ejemplo completo en Streamlit + Altair, con varias opciones de interactividad y personalización:
+Selección de columna para el eje Y.
+Colores personalizados.
+Ordenar las barras.
+Tooltips con info extra.
+Etiquetas sobre las barras.
+Opción de gráfico de barras horizontal o vertical.
+Ajuste de tamaño."""
+
+
+# -----------------------------
+# Datos de ejemplo
+# -----------------------------
+df = pd.DataFrame({
+    "fruta": ["manzana", "plátano", "uva", "pera", "cereza"],
+    "ventas": [10, 20, 15, 8, 12],
+    "precio_promedio": [1.2, 0.8, 2.5, 1.5, 3.0],
+    "stock": [50, 40, 30, 20, 10]
+})
+
+st.title("📊 Ejemplo completo: Altair + Streamlit")
+
+# -----------------------------
+# Controles de usuario
+# -----------------------------
+y_axis = st.selectbox(
+    "📈 Selecciona la métrica a graficar:",
+    ["ventas", "precio_promedio", "stock"]
+)
+
+orientation = st.radio(
+    "📐 Orientación de las barras:",
+    ["Vertical", "Horizontal"]
+)
+
+order = st.checkbox("🔀 Ordenar de mayor a menor", value=True)
+
+color_scheme = st.selectbox(
+    "🎨 Selecciona paleta de colores:",
+    ["category10", "category20", "dark2", "set1", "set2"]
+)
+
+# -----------------------------
+# Construcción del gráfico
+# -----------------------------
+# Definir eje X y Y según orientación
+if orientation == "Vertical":
+    x = alt.X("fruta", sort="-y" if order else None, title="Fruta")
+    y = alt.Y(y_axis, title=y_axis.capitalize())
+else:
+    x = alt.X(y_axis, title=y_axis.capitalize())
+    y = alt.Y("fruta", sort="-x" if order else None, title="Fruta")
+
+# Crear gráfico base
+chart = (
+    alt.Chart(df)
+    .mark_bar(cornerRadiusTopLeft=6, cornerRadiusTopRight=6)
+    .encode(
+        x=x,
+        y=y,
+        color=alt.Color("fruta", scale=alt.Scale(scheme=color_scheme), legend=None),
+        tooltip=["fruta", y_axis, "precio_promedio", "stock"]  # tooltip con más info
+    )
+    .properties(width=600, height=400)
+)
+
+# Añadir etiquetas de texto (solo para orientación vertical)
+if orientation == "Vertical":
+    text = chart.mark_text(
+        align="center",
+        baseline="bottom",
+        dy=-3
+    ).encode(
+        text=y_axis
+    )
+    chart = chart + text
+
+# Mostrar gráfico
+st.altair_chart(chart, use_container_width=True)
+#🔹 ¿Qué puedes hacer aquí?
+#✅ Cambiar la métrica (ventas, precio, stock).
+#✅ Cambiar la orientación (barras verticales u horizontales).
+#✅ Elegir si las barras se ordenan o no.
+#✅ Escoger la paleta de colores.
+#✅ Pasar el mouse y ver tooltips con más info.
+#✅ Ver las etiquetas de valores encima de las barras.
