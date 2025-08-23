@@ -17,7 +17,7 @@ Cuando esté activo, verás el nombre del entorno (por ejemplo venv) al inicio d
 
 4. Para desactivar tu entorno cuando termines de trabajar escribe en la terminal
 
-desactivate
+deactivate
 
 ## Instalar Streamlit
 
